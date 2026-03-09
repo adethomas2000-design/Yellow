@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>BOLT-EV // V5.3-FORCE-START</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=JetBrains+Mono:wght@800&display=swap" rel="stylesheet">
+    <style>
+        :root { --accent: #ffd700; --bg: #000; --data: #00d4ff; --panel: #111; }
+        
+        /* MOBILE FIX: Prevent browser from stealing gestures */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; touch-action: none; }
+        
+        body { 
+            background: var(--bg); color: #fff; font-family: 'JetBrains Mono', monospace; 
+            height: 100vh; width: 100vw; overflow: hidden;
+            display: grid; grid-template-rows: 90px 1fr 70px; 
+        }
+
+        /* FULL-SCREEN INTERACTIVE OVERLAY */
+        #boot-overlay { 
+            position: fixed; inset: 0; background: #000; z-index: 999999; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            border: 20px solid var(--accent); cursor: pointer;
+        }
+        .glitch-text { font-family: 'Orbitron'; font-size: 2.2rem; color: var(--accent); text-align: center; line-height: 1.2; }
+        .sub-text { margin-top: 20px; font-size: 0.8rem; letter-spacing: 4px; color: #555; }
+
+        header { background: #111; border-bottom: 5px solid var(--accent); display: flex; align-items: center; padding: 0 30px; justify-content: space-between; }
+        .logo { font-family: 'Orbitron'; font-size: 1.8rem; color: var(--accent); }
+        #clock { font-family: 'Orbitron'; font-size: 2.2rem; font-weight: 900; display: flex; align-items: baseline; font-variant-numeric: tabular-nums; }
+        #time-digits { min-width: 210px; text-align: right; }
+        #ampm { font-size: 1rem; margin-left: 10px; color: var(--accent); width: 40px; }
+
+        main { display: grid; grid-template-columns: repeat(4, 25%); grid-template-rows: 50% 50%; background: #222; gap: 4px; padding: 4px; height: 100%; }
+        .card { background: var(--panel); display: flex; flex-direction: column; overflow: hidden; border: 1px solid #333; }
+        
+        /* UNIFORM 60PX HEADERS - FULL TITLES */
+        .label { 
+            background: var(--accent); color: #000; font-size: 11px; font-weight: 900; 
+            height: 60px; padding: 0 8px; text-transform: uppercase; 
+            display: flex; align-items: center; justify-content: center; text-align: center;
+            line-height: 1.1; border-bottom: 2px solid #000;
+        }
+
+        .value-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .value { font-family: 'Orbitron'; font-size: clamp(1.8rem, 5.5vw, 4.5rem); color: #fff; line-height: 1; font-variant-numeric: tabular-nums; }
+        .unit { font-size: 0.65rem; color: var(--data); font-weight: 900; margin-top: 6px; text-align: center; opacity: 0.8; }
+
+        footer { background: #000; border-top: 3px solid #333; overflow: hidden; display: flex; align-items: center; }
+        .marquee { white-space: nowrap; font-size: 20px; font-weight: 900; color: var(--accent); width: 100%; }
+        #ticker-span { display: inline-block; padding-left: 100%; animation: marquee 30s linear infinite; }
+        @keyframes marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
+    </style>
+</head>
+<body id="main-body">
+
+    <div id="boot-overlay" onclick="forceStart()" ontouchstart="forceStart()">
+        <div class="glitch-text">TAP ANYWHERE<br>TO ENGAGE</div>
+        <div class="sub-text">BOLT-EV SYSTEM v5.3</div>
+    </div>
+
+    <header>
+        <div class="logo">BOLT-EV</div>
+        <div id="clock"><span id="time-digits">12:00:00</span><span id="ampm">AM</span></div>
+    </header>
+
+    <main>
+        <div class="card"><div class="label">WIFI LINK<br>STRENGTH</div><div class="value-container"><span class="value" id="v1">-45</span><span class="unit">DECIBEL-MILLIWATTS</span></div></div>
+        <div class="card"><div class="label">FLUX<br>DISPLACEMENT</div><div class="value-container"><span class="value" id="v2">0.00</span><span class="unit">GIGAWATTS (GW)</span></div></div>
+        <div class="card"><div class="label">KINETIC STEPS<br>TAKEN</div><div class="value-container"><span class="value" id="v3" style="color:var(--accent)">0</span><span class="unit">TOTAL REVOLUTIONS</span></div></div>
+        <div class="card"><div class="label">HARMONIC<br>DISTORTION</div><div class="value-container"><span class="value" id="v4">0.1</span><span class="unit">TOTAL THD %</span></div></div>
+        <div class="card"><div class="label">UPLINK<br>INTEGRITY</div><div class="value-container"><span class="value" id="v5">100</span><span class="unit">SUCCESS RATE %</span></div></div>
+        <div class="card"><div class="label">TORQUE<br>OUTPUT</div><div class="value-container"><span class="value" id="v6">0.0</span><span class="unit">NEWTON-METERS</span></div></div>
+        <div class="card"><div class="label">REACTOR<br>TEMPERATURE</div><div class="value-container"><span class="value" id="v7">22</span><span class="unit">DEGREES CELSIUS</span></div></div>
+        <div class="card"><div class="label">VOLUMETRIC<br>EFFICIENCY</div><div class="value-container"><span class="value" id="v8">92</span><span class="unit">ENERGY RETENTION %</span></div></div>
+    </main>
+
+    <footer>
+        <div class="marquee"><span id="ticker-span">AWAITING INPUT...</span></div>
+    </footer>
+
+    <script>
+        let active = false;
+        let tickerIndex = 0;
+        const handle = "FOLLOW @BOLT_THE_AMPSTER ● ";
+        const phases = [
+            "PHASE 01: TELEMETRY ONLINE ● HARD-START PROTOCOL ACTIVE",
+            "PHASE 02: ENERGY SOURCE: ORGANIC SUNFLOWER SEEDS ● 100% RENEWABLE",
+            "PHASE 03: CAUTION: HIGH-SPEED SPIN DETECTED ● BOLT-EV OPTIMAL",
+            "PHASE 04: TECH LOG: CALIBRATING KINETIC SENSORS ● TORQUE STABLE",
+            "PHASE 05: LAB DATA SYNC COMPLETE ● RESTARTING SEQUENCE..."
+        ];
+
+        const state = {
+            m1: { curr: -45, targ: -45, dom: 'v1', dec: 0 },
+            m2: { curr: 0, targ: 0, dom: 'v2', dec: 2 },
+            m3: { curr: 0, targ: 0, dom: 'v3', dec: 0 },
+            m4: { curr: 0.1, targ: 0.1, dom: 'v4', dec: 1 },
+            m5: { curr: 100, targ: 100, dom: 'v5', dec: 0 },
+            m6: { curr: 0, targ: 0, dom: 'v6', dec: 1 },
+            m7: { curr: 22, targ: 22, dom: 'v7', dec: 0 },
+            m8: { curr: 92, targ: 92, dom: 'v8', dec: 0 }
+        };
+
+        function forceStart() {
+            if (active) return;
+            active = true;
+            
+            // Hide overlay
+            document.getElementById('boot-overlay').style.display = 'none';
+            
+            // Initiate Ticker
+            const ticker = document.getElementById('ticker-span');
+            ticker.textContent = handle + phases[0];
+            ticker.addEventListener('animationiteration', () => {
+                tickerIndex = (tickerIndex + 1) % phases.length;
+                ticker.textContent = handle + phases[tickerIndex];
+            });
+
+            // Kickstart loops
+            setInterval(updateData, 3000);
+            requestAnimationFrame(render);
+        }
+
+        function updateData() {
+            const r = Math.random();
+            state.m1.targ = -(40 + Math.floor(r*12));
+            state.m2.targ = r * 1.21;
+            state.m3.targ += Math.floor(r * 250);
+            state.m4.targ = 0.1 + (r * 0.5);
+            state.m6.targ = r * 15.0;
+            state.m7.targ = 20 + (r * 10);
+            state.m8.targ = 85 + (r * 15);
+        }
+
+        function render() {
+            for (let k in state) {
+                let s = state[k];
+                s.curr += (s.targ - s.curr) * 0.04; // Smooth transition
+                document.getElementById(s.dom).textContent = s.curr.toFixed(s.dec);
+            }
+            
+            const now = new Date();
+            let h = now.getHours() % 12 || 12;
+            let m = now.getMinutes().toString().padStart(2, '0');
+            let s = now.getSeconds().toString().padStart(2, '0');
+            document.getElementById('time-digits').textContent = `${h}:${m}:${s}`;
+            document.getElementById('ampm').textContent = now.getHours() >= 12 ? 'PM' : 'AM';
+            
+            requestAnimationFrame(render);
+        }
+    </script>
+</body>
+</html>
